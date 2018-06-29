@@ -8,3 +8,5 @@ Các ô sẽ bị khóa với 1 điều kiện nào đó.
 Đến lượt người nào đó mà người đó không thể đi được nữa thì người đó thua.
 Game có hỗ trợ AI để người chơi có thể tự rèn luyện.
 Game được viết bởi Nguyễn Đăng Nguyên.Sinh viên ĐH Bách Khoa Hà Nội.
+Game đang trong quá trình hoàn thành.
+Sẽ còn rất nhiều chức năng nữa sẽ được bổ sung cho game trong thời gian tới.
