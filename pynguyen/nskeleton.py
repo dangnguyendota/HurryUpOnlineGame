@@ -24,9 +24,9 @@ class classical_skeleton:
                 if e.type == QUIT:
                     sys.exit(1)
                 self.event(e)
-            self.update()
             self.draw()
             self.collision()
+            self.update()
             display.update()
             self.clock.tick(ndisplay["FPS"])
 
@@ -45,3 +45,4 @@ class classical_skeleton:
     def collision(self):
         """Xử lý va chạm"""
         pass
+

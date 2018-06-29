@@ -1,4 +1,5 @@
 from Sprites import *
+from UI import *
 
 class Screen(classical_skeleton):
     def __init__(self, setting=None):
@@ -10,11 +11,16 @@ class Screen(classical_skeleton):
         display.set_caption("** Online **")
 
     def new(self):
-        """refresh game sprites, upload, delete, change,... game status, creates new sprites, somethings like that..."""
+        """
+        refresh game sprites, upload, delete, change,... game status, creates new sprites, somethings like that...
+        """
         self.realboard = Board(self.setting.gameRow, self.setting.gameColumn)
         self.players = sprite.Group()
         self.addPlayer(1, self.constValue['player1_start_pos'])
         # self.addPlayer(2, self.constValue['player2_start_pos'])
+        self.buttons = sprite.Group()
+        self.buttons.add(CreateHost(self, self.setting.buttonAreaPos))
+        self.buttons.add(Exit(self, addPos(self.setting.buttonAreaPos, [80, 400])))
 
     def event(self, e):
         """handle the events like mouse moving, key pressing,.."""
@@ -23,16 +29,22 @@ class Screen(classical_skeleton):
     def update(self):
         """update sprites status"""
         self.players.update()
+        self.buttons.update()
 
     def draw(self):
-        """draw sprites, effects, enviroment,... on the screen"""
+        """
+        draw sprites, effects, enviroment,... on the screen
+        """
         self.screen.fill(Color("white"))
         self.drawBoard()
         self.drawTheSquares()
         self.players.draw(self.screen)
+        self.buttons.draw(self.screen)
 
     def drawBoard(self):
-        """draw the board"""
+        """
+        draw the board
+        """
         for i in range(self.setting.gameRow + 1):
             draw.aaline(self.screen, Color('black'),
                         (self.setting.boardDeltaX, self.setting.boardDeltaY + i * self.setting.squareSize),
@@ -54,14 +66,18 @@ class Screen(classical_skeleton):
                     self.screen.blit(Square(Color('yellow'), 30), [pos[0] + 5, pos[1] + 5])
 
     def addPlayer(self, num, pos):
-        """Add a new player with position: pos and id: num"""
+        """
+        Add a new player with position: pos and id: num
+        """
         poss = [self.setting.boardDeltaX + pos[0] * self.setting.squareSize,
                 self.setting.boardDeltaY + pos[1] * self.setting.squareSize]
         self.players.add(Player(self, num, poss))
         self.realboard.set(pos[0], pos[1], num)
 
     def checkMove(self, id, direction):
-        """Check the move is invalid or not"""
+        """
+        Check the move is invalid or not
+        """
         for x in range(self.setting.gameColumn):
             if self.realboard.get(x, 0) == id:
                 if direction == "up":
@@ -92,7 +108,9 @@ class Screen(classical_skeleton):
         return True
 
     def change(self, id, pos):
-        """mark the player with id: id through the last position and now is in the new position: pos"""
+        """
+        mark the player with id: id through the last position and now is in the new position: pos
+        """
         poss = self.realboard.getPos(id)
         if id == self.constValue["player1"]:
             self.realboard.set(poss[0], poss[1], self.constValue["player1_went_through"])
