@@ -1,6 +1,12 @@
 from Setting import *
 
 def Square(color, size):
+    """
+    Tạo một ô vuông.
+    :param color: Màu của ô
+    :param size: Kích thước của ô (pixel)
+    :return: Trả về Surface 1 ô vuông đã được tạo
+    """
     square = Surface((size, size))
     square.fill(color)
     return square
@@ -8,6 +14,11 @@ def Square(color, size):
 
 class Board:
     def __init__(self, row, column):
+        """
+        Lớp Board là một mảng hai chiều đại diện cho bàn di chuyển
+        :param row: số ô trong 1 hàng
+        :param column: số ô trong một cột
+        """
         self._row = row
         self._column = column
         self._board = []
@@ -41,6 +52,12 @@ class Board:
 
 class Player(sprite.Sprite):
     def __init__(self, parent, id, start_pos):
+        """
+        Lớp Player này chính là nhân vật của ta điều khiển
+        :param parent:Là lớp cha , hay chính là màn chơi.
+        :param id:Id của nhân vật, mỗi nhân vật được nhận diện bằng id khác nhau.
+        :param start_pos:vị trí khởi tạo của nhân vật.
+        """
         sprite.Sprite.__init__(self)
         self.flag = {"stop": True, "moving": False, "fight": False, "die": False, "myTurn": True}
         self.setting = {"last_time": time.get_ticks(), "delta_time": 300, "vx": 0, "vy": 0, "v": 2, "deltaX": 5,

@@ -24,6 +24,11 @@ except:
 
 
 def option(**kwargs):
+    """
+    * Chỉnh sửa thông số mặc định của game.
+    :param kwargs: FPS, WIDTH, HEIGHT, icon, blue_line, red_line, green_line
+    :return:
+    """
     try:
         for setting_value in kwargs:
             ndisplay[setting_value] = kwargs[setting_value]

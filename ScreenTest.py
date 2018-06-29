@@ -109,7 +109,4 @@ class Screen(classical_skeleton):
         return [x, y]
 
 
-# TEST
-s = Screen(setting)
-s.new()
-s.run()
+
