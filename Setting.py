@@ -24,6 +24,17 @@ class Setting:
 def addPos(pos1, pos2):
     return [pos1[0] + pos2[0], pos1[1] + pos2[1]]
 
+def drawSquare(screen, pos, color, background_color, size):
+    square = Surface(size)
+    background = Surface((size[0]+2, size[1]+2))
+    try:
+        square.fill(color)
+    except:
+        print(color)
+        sys.exit(0)
+    background.fill(background_color)
+    screen.blit(background, (pos[0]-1, pos[1]-1))
+    screen.blit(square, pos)
 
 setting = Setting()
 
@@ -48,3 +59,8 @@ exit_button_pressing = image.load(os.path.join(__PATH__, "data/texture/UI/Button
 scrollbar = image.load(os.path.join(__PATH__, "data/texture/UI/Scrollbar.png"))
 scrollbar_background = image.load(os.path.join(__PATH__, "data/texture/UI/Scrollbar-background.png"))
 small_dialog = image.load(os.path.join(__PATH__, "data/texture/UI/small-dialog.png"))
+
+# Color bar
+pull_button = Surface((23, 5))
+pull_button.fill(Color('white'))
+normal_dialog = transform.scale(small_dialog, (120, 30))

@@ -30,6 +30,8 @@ class Screen_AI_solo(classical_skeleton):
         self.buttons.add(self.sizeX)
         self.sizeY = ScrollBar(self, (SCREEN_WIDTH - 180, 250), self.setting.gameRow, 15, "Number of rows")
         self.buttons.add(self.sizeY)
+        self.colorbar = ColorBar(self, ((SCREEN_WIDTH - 180, 300)))
+        self.buttons.add(self.colorbar)
 
 
     def event(self, e):
