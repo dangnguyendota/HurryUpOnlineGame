@@ -11,7 +11,7 @@ class classical_skeleton:
         mixer.init()
         self.clock = time.Clock()
         self.running = True
-        self.screen = display.set_mode((ndisplay["WIDTH"], ndisplay["HEIGHT"]))
+        self.screen = display.set_mode((ndisplay["WIDTH"], ndisplay["HEIGHT"]), FULLSCREEN)
         display.set_caption("pynguyen screen classical mode")
         display.set_icon(ndisplay['icon'])
 

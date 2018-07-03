@@ -94,13 +94,11 @@ class Player(sprite.Sprite):
                 if -self.setting['v'] < self.setting['nextPosition'][0] - self.rect.x < self.setting['v']:
                     self.rect.x = self.setting['nextPosition'][0]
                     self.flag['moving'] = False
-                    # self.flag['myTurn'] = False
                     self.parent.change(self.id, self.standardize(self.setting['nextPosition']))
             if self.setting['vy'] != 0:
                 if -self.setting['v'] < self.setting['nextPosition'][1] - self.rect.y < self.setting['v']:
                     self.rect.y = self.setting['nextPosition'][1]
                     self.flag['moving'] = False
-                    # self.flag['myTurn'] = False
                     self.parent.change(self.id, self.standardize(self.setting['nextPosition']))
 
     def move(self, **kwargs):
@@ -125,6 +123,7 @@ class Player(sprite.Sprite):
                 self.setting['vx'] = 0
                 self.setting["nextPosition"][1] = self.rect.y + setting.squareSize
             self.flag['moving'] = True
+            self.flag["myTurn"] = False
 
     def standardize(self, pos):
         return [(pos[0] - self.setting["deltaX"] - setting.boardDeltaX) // setting.squareSize,

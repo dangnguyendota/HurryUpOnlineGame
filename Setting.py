@@ -1,21 +1,24 @@
 from pynguyen.ninit import *
-
+from win32api import GetSystemMetrics
 init()
 
 __PATH__ = os.path.dirname(__file__)
-
+SCREEN_WIDTH = GetSystemMetrics(0)
+SCREEN_HEIGHT = GetSystemMetrics(1)
+HOST = 'localhost'
+PORT = 8000
 
 # Setting lưu các thông số game.
 
 class Setting:
     def __init__(self):
-        option(WIDTH=700, HEIGHT=500, FPS=60)
+        option(WIDTH=SCREEN_WIDTH, HEIGHT=SCREEN_HEIGHT, FPS=60)
         self.gameRow = 9  # y
         self.gameColumn = 12  # x
         self.boardDeltaX = 10
         self.boardDeltaY = 50
         self.squareSize = 40
-        self.buttonAreaPos = [self.gameColumn * self.squareSize + self.boardDeltaX + 30,
+        self.buttonAreaPos = [SCREEN_WIDTH - 150,
                               30]
 
 
@@ -32,8 +35,8 @@ FontIomanoid_Normal = font.Font(os.path.join(__PATH__, "data/font/iomanoid.ttf")
 FontIomanoid_Large = font.Font(os.path.join(__PATH__, "data/font/iomanoid.ttf"), 20)
 
 # Nút tạo host
-create_host_button = Surface((120, 40))
-create_host_button.fill(Color('black'))
+create_host_button = image.load(os.path.join(__PATH__, "data/texture/UI/Button1.png"))
+create_host_button_pressing = image.load(os.path.join(__PATH__, "data/texture/UI/Button1-pressing.png"))
 
 # Nút quit
 exit_button = Surface((50, 40))

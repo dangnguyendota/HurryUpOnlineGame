@@ -20,7 +20,7 @@ class Screen(classical_skeleton):
         # self.addPlayer(2, self.constValue['player2_start_pos'])
         self.buttons = sprite.Group()
         self.buttons.add(CreateHost(self, self.setting.buttonAreaPos))
-        self.buttons.add(Exit(self, addPos(self.setting.buttonAreaPos, [80, 400])))
+        self.buttons.add(Exit(self, addPos(self.setting.buttonAreaPos, [30, SCREEN_HEIGHT - 100])))
 
     def event(self, e):
         """handle the events like mouse moving, key pressing,.."""
@@ -55,6 +55,7 @@ class Screen(classical_skeleton):
                         (self.setting.boardDeltaX + i * self.setting.squareSize, self.setting.boardDeltaY),
                         (self.setting.boardDeltaX + i * self.setting.squareSize,
                          self.setting.boardDeltaY + self.setting.gameRow * self.setting.squareSize))
+        draw.line(self.screen, Color('black'), (SCREEN_WIDTH - 200, 50), (SCREEN_WIDTH - 200, SCREEN_HEIGHT - 50))
 
     def drawTheSquares(self):
         for x in range(self.setting.gameColumn):
