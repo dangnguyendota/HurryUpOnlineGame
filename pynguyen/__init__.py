@@ -8,5 +8,6 @@ __version__ = "1.0.0-raw"
 __all__ = [
     'nsetting'
     'nskeleton',
-    'ndraw'
+    'ndraw',
+    'nsprite',
     ]

@@ -64,6 +64,9 @@ class Player(sprite.Sprite):
                         "deltaY": 5, "nextPosition": [0, 0]}
         self.parent = parent
         self.id = id
+        #nguời chơi 2 đi sau
+        if id == 2:
+            self.flag["myTurn"] = False
         self.image = Surface((setting.squareSize - 10, setting.squareSize - 10))
         self.image.fill(Color('green'))
         self.rect = self.image.get_rect()
@@ -72,18 +75,19 @@ class Player(sprite.Sprite):
         self.setting["nextPosition"] = [self.rect.x, self.rect.y]
 
     def update(self):
-        self.getKey()
+        if not self.parent.states["pause"]:
+            self.getKey()
         self.animation()
 
     def getKey(self):
         keystate = key.get_pressed()
-        if keystate[K_a] or keystate[K_LEFT]:
+        if (keystate[K_a] and  self.id == 1) or (keystate[K_LEFT] and self.id == 2):
             self.move(direction='left')
-        elif keystate[K_d] or keystate[K_RIGHT]:
+        elif (keystate[K_d] and  self.id == 1) or (keystate[K_RIGHT] and self.id == 2):
             self.move(direction='right')
-        elif keystate[K_w] or keystate[K_UP]:
+        elif (keystate[K_w] and  self.id == 1) or (keystate[K_UP] and self.id == 2):
             self.move(direction='up')
-        elif keystate[K_s] or keystate[K_DOWN]:
+        elif (keystate[K_s] and  self.id == 1) or (keystate[K_DOWN] and self.id == 2):
             self.move(direction='down')
 
     def animation(self):
@@ -123,8 +127,14 @@ class Player(sprite.Sprite):
                 self.setting['vx'] = 0
                 self.setting["nextPosition"][1] = self.rect.y + setting.squareSize
             self.flag['moving'] = True
-            self.flag["myTurn"] = False
+            self.parent.swapTurn()
 
     def standardize(self, pos):
         return [(pos[0] - self.setting["deltaX"] - setting.boardDeltaX) // setting.squareSize,
                 (pos[1] - self.setting["deltaY"] - setting.boardDeltaY) // setting.squareSize]
+
+    def swapTurn(self):
+        if self.flag["myTurn"]:
+            self.flag["myTurn"] = False
+        else:
+            self.flag["myTurn"] = True

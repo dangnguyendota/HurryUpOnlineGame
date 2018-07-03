@@ -1,26 +1,36 @@
 from Sprites import *
 from UI import *
 
-class Screen(classical_skeleton):
+
+class Screen_AI_solo(classical_skeleton):
     def __init__(self, setting=None):
         classical_skeleton.__init__(self)
         self.setting = setting
-        self.constValue = {"nothing": 0, "player1": 1, "player2": 2, "player1_went_through": 3,
-                           "player2_went_through": 4, "banned" :[1, 2, 3, 4], "player1_start_pos": (0, 0),
-                           "player2_start_pos": (self.setting.gameColumn - 1, self.setting.gameRow - 1)}
         display.set_caption("** Online **")
 
     def new(self):
         """
-        refresh game sprites, upload, delete, change,... game status, creates new sprites, somethings like that...
+        Tạo mới màn chơi
+        :return:
         """
+        self.constValue = {"nothing": 0, "player1": 1, "player2": 2, "player1_went_through": 3,
+                           "player2_went_through": 4, "banned": [1, 2, 3, 4], "player1_start_pos": (0, 0),
+                           "player2_start_pos": (self.setting.gameColumn - 1, self.setting.gameRow - 1)}
+        self._game_mode = {"AI-solo": True, "Multiplayer": False, "Pixel-art": False}
+        self.states = {"pause":False, "main":True}
         self.realboard = Board(self.setting.gameRow, self.setting.gameColumn)
         self.players = sprite.Group()
         self.addPlayer(1, self.constValue['player1_start_pos'])
-        # self.addPlayer(2, self.constValue['player2_start_pos'])
+        self.addPlayer(2, self.constValue['player2_start_pos'])
         self.buttons = sprite.Group()
-        self.buttons.add(CreateHost(self, self.setting.buttonAreaPos))
-        self.buttons.add(Exit(self, addPos(self.setting.buttonAreaPos, [30, SCREEN_HEIGHT - 100])))
+        self.buttons.add(NewGame(self, [SCREEN_WIDTH - 170, 30]))
+        self.buttons.add(PauseGame(self, [SCREEN_WIDTH - 170, 100]))
+        self.buttons.add(Exit(self, [SCREEN_WIDTH - 120, SCREEN_HEIGHT - 70]))
+        self.sizeX = ScrollBar(self, (SCREEN_WIDTH - 180, 200), self.setting.gameColumn, 25, "Number of columns")
+        self.buttons.add(self.sizeX)
+        self.sizeY = ScrollBar(self, (SCREEN_WIDTH - 180, 250), self.setting.gameRow, 15, "Number of rows")
+        self.buttons.add(self.sizeY)
+
 
     def event(self, e):
         """handle the events like mouse moving, key pressing,.."""
@@ -95,16 +105,16 @@ class Screen(classical_skeleton):
                     return False
         current_pos = self.realboard.getPos(id)
         if direction == "up":
-            if self.realboard.get(current_pos[0], current_pos[1]-1) in self.constValue["banned"]:
+            if self.realboard.get(current_pos[0], current_pos[1] - 1) in self.constValue["banned"]:
                 return False
         elif direction == "down":
-            if self.realboard.get(current_pos[0], current_pos[1]+1) in self.constValue["banned"]:
+            if self.realboard.get(current_pos[0], current_pos[1] + 1) in self.constValue["banned"]:
                 return False
         elif direction == "left":
-            if self.realboard.get(current_pos[0]-1, current_pos[1]) in self.constValue["banned"]:
+            if self.realboard.get(current_pos[0] - 1, current_pos[1]) in self.constValue["banned"]:
                 return False
         elif direction == "right":
-            if self.realboard.get(current_pos[0]+1, current_pos[1]) in self.constValue["banned"]:
+            if self.realboard.get(current_pos[0] + 1, current_pos[1]) in self.constValue["banned"]:
                 return False
         return True
 
@@ -123,9 +133,39 @@ class Screen(classical_skeleton):
             return
 
     def boardPositionToRealPosition(self, boardPos):
+        """
+        Chuyển đổi từ tọa độ bàn chơi (cột, hàng)(số) sang tọa độ thực (tọa độ x, tọa độ y)(pixel).
+        :param boardPos: tọa độ bàn chơi (cột, hàng)
+        :return: [x, y] là tọa độ thực tính theo pixel
+        """
         x = boardPos[0] * self.setting.squareSize + self.setting.boardDeltaX
         y = boardPos[1] * self.setting.squareSize + self.setting.boardDeltaY
         return [x, y]
 
+    def setMode(self, mode):
+        """
+        Chỉnh lại chế độ game
+        :param mode: 3 chế độ: AI-solo, Multiplayer, Pixel-art
+        :return:
+        """
+        for i in self._game_mode:
+            self._game_mode[i] = False
+        self._game_mode[mode] = True
 
+    def swapTurn(self):
+        """
+        Đổi lượt chơi của 2 người chơi.
+        :return: Người đang có lượt sẽ nhường lượt kế tiếp cho người kia.
+        """
+        for player in self.players:
+            player.swapTurn()
 
+    def pause(self):
+        """
+        tạm dừng trò chơi
+        :return:
+        """
+        if not self.states["pause"]:
+            self.states["pause"] = True
+        else:
+            self.states["pause"] = False

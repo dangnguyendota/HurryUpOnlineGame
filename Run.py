@@ -1,6 +1,6 @@
 from ScreenTest import *
 
 # TEST
-s = Screen(setting)
+s = Screen_AI_solo(setting)
 s.new()
 s.run()
