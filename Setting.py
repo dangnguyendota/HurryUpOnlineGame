@@ -1,5 +1,6 @@
 from pynguyen.ninit import *
 from win32api import GetSystemMetrics
+
 init()
 
 __PATH__ = os.path.dirname(__file__)
@@ -7,6 +8,10 @@ SCREEN_WIDTH = GetSystemMetrics(0)
 SCREEN_HEIGHT = GetSystemMetrics(1)
 HOST = 'localhost'
 PORT = 8000
+UNIT_PER_LETTER_SMALL = 10
+UNIT_PER_LETTER_NORMAL = 15
+UNIT_PER_LETTER_LARGE = 20
+
 
 # Setting lưu các thông số game.
 
@@ -21,20 +26,38 @@ class Setting:
         self.buttonAreaPos = [SCREEN_WIDTH - 150,
                               30]
 
+
 def addPos(pos1, pos2):
     return [pos1[0] + pos2[0], pos1[1] + pos2[1]]
 
+
 def drawSquare(screen, pos, color, background_color, size):
     square = Surface(size)
-    background = Surface((size[0]+2, size[1]+2))
+    background = Surface((size[0] + 2, size[1] + 2))
     try:
         square.fill(color)
     except:
         print(color)
         sys.exit(0)
     background.fill(background_color)
-    screen.blit(background, (pos[0]-1, pos[1]-1))
+    screen.blit(background, (pos[0] - 1, pos[1] - 1))
     screen.blit(square, pos)
+
+
+def boardPositionToRealPosition(boardPos, boardDeltaX, boardDeltaY, squareSize):
+    """
+    Chuyển đổi từ tọa độ bàn chơi (cột, hàng)(số) sang tọa độ thực (tọa độ x, tọa độ y)(pixel).
+    :param boardPos: tọa độ bàn chơi (cột, hàng)
+    :return: [x, y] là tọa độ thực tính theo pixel
+    """
+    x = boardPos[0] * squareSize + boardDeltaX
+    y = boardPos[1] * squareSize + boardDeltaY
+    return [x, y]
+
+
+def realPositionToBoardPosition(realPos, boardDeltaX, boardDeltaY, squareSize):
+    return [(realPos[0] - boardDeltaX) // squareSize, (realPos[1] - boardDeltaY) // squareSize]
+
 
 setting = Setting()
 

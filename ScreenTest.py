@@ -17,7 +17,7 @@ class Screen_AI_solo(classical_skeleton):
                            "player2_went_through": 4, "banned": [1, 2, 3, 4], "player1_start_pos": (0, 0),
                            "player2_start_pos": (self.setting.gameColumn - 1, self.setting.gameRow - 1)}
         self._game_mode = {"AI-solo": True, "Multiplayer": False, "Pixel-art": False}
-        self.states = {"pause":False, "main":True}
+        self.states = {"pause": False, "main": True}
         self.realboard = Board(self.setting.gameRow, self.setting.gameColumn)
         self.players = sprite.Group()
         self.addPlayer(1, self.constValue['player1_start_pos'])
@@ -28,11 +28,10 @@ class Screen_AI_solo(classical_skeleton):
         self.buttons.add(Exit(self, [SCREEN_WIDTH - 120, SCREEN_HEIGHT - 70]))
         self.sizeX = ScrollBar(self, (SCREEN_WIDTH - 180, 200), self.setting.gameColumn, 25, "Number of columns")
         self.buttons.add(self.sizeX)
-        self.sizeY = ScrollBar(self, (SCREEN_WIDTH - 180, 250), self.setting.gameRow, 15, "Number of rows")
+        self.sizeY = ScrollBar(self, (SCREEN_WIDTH - 180, 250), self.setting.gameRow, 17, "Number of rows")
         self.buttons.add(self.sizeY)
-        self.colorbar = ColorBar(self, ((SCREEN_WIDTH - 180, 300)))
-        self.buttons.add(self.colorbar)
-
+        # self.colorbar = ColorBar(self, ((SCREEN_WIDTH - 180, 300)))
+        # self.buttons.add(self.colorbar)
 
     def event(self, e):
         """handle the events like mouse moving, key pressing,.."""
@@ -67,7 +66,7 @@ class Screen_AI_solo(classical_skeleton):
                         (self.setting.boardDeltaX + i * self.setting.squareSize, self.setting.boardDeltaY),
                         (self.setting.boardDeltaX + i * self.setting.squareSize,
                          self.setting.boardDeltaY + self.setting.gameRow * self.setting.squareSize))
-        draw.line(self.screen, Color('black'), (SCREEN_WIDTH - 200, 50), (SCREEN_WIDTH - 200, SCREEN_HEIGHT - 50))
+        draw.line(self.screen, Color('black'), (SCREEN_WIDTH - 190, 50), (SCREEN_WIDTH - 190, SCREEN_HEIGHT - 50))
 
     def drawTheSquares(self):
         for x in range(self.setting.gameColumn):
@@ -171,3 +170,70 @@ class Screen_AI_solo(classical_skeleton):
             self.states["pause"] = True
         else:
             self.states["pause"] = False
+
+
+class Screen_Pixel_painting(classical_skeleton):
+    def __init__(self, setting=None):
+        classical_skeleton.__init__(self)
+        self.setting = setting
+        display.set_caption("** Online **")
+
+    def new(self):
+        """
+        Tạo mới màn chơi
+        :return:
+        """
+        self._game_mode = {"AI-solo": True, "Multiplayer": False, "Pixel-art": False}
+        self.states = {"pause": False, "main": True}
+        self.buttons = sprite.Group()
+        self.buttons.add(NewGame(self, [SCREEN_WIDTH - 170, 30]))
+        self.buttons.add(PauseGame(self, [SCREEN_WIDTH - 170, 100]))
+        self.buttons.add(Exit(self, [SCREEN_WIDTH - 120, SCREEN_HEIGHT - 70]))
+        self.sizeX = ScrollBar(self, (SCREEN_WIDTH - 180, 200), self.setting.gameColumn, 25, "Number of columns")
+        self.buttons.add(self.sizeX)
+        self.sizeY = ScrollBar(self, (SCREEN_WIDTH - 180, 250), self.setting.gameRow, 17, "Number of rows")
+        self.buttons.add(self.sizeY)
+        self.colorbar = ColorBar(self, (SCREEN_WIDTH - 180, 300))
+        self.buttons.add(self.colorbar)
+        self.board = DrawingBoard(self, [self.setting.boardDeltaX, self.setting.boardDeltaY], self.setting.gameColumn,
+                                  self.setting.gameRow, self.setting.squareSize)
+
+    def event(self, e):
+        """handle the events like mouse moving, key pressing,.."""
+        pass
+
+    def update(self):
+        """update sprites status"""
+        self.buttons.update()
+        self.board.update()
+
+    def draw(self):
+        """
+        draw sprites, effects, enviroment,... on the screen
+        """
+        self.screen.fill(Color("white"))
+        self.board.drawBoard()
+        self.buttons.draw(self.screen)
+
+    def setMode(self, mode):
+        """
+        Chỉnh lại chế độ game
+        :param mode: 3 chế độ: AI-solo, Multiplayer, Pixel-art
+        :return:
+        """
+        for i in self._game_mode:
+            self._game_mode[i] = False
+        self._game_mode[mode] = True
+
+    def pause(self):
+        """
+        tạm dừng trò chơi
+        :return:
+        """
+        if not self.states["pause"]:
+            self.states["pause"] = True
+        else:
+            self.states["pause"] = False
+
+    def getChosenColor(self):
+        return self.colorbar.getColorFieldResult()

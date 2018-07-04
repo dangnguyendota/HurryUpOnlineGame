@@ -1,5 +1,6 @@
 from Setting import *
 
+
 def Square(color, size):
     """
     Tạo một ô vuông.
@@ -50,6 +51,73 @@ class Board:
         for row in self._board:
             print(row)
 
+
+class ColorBoard:
+    def __init__(self, row, column):
+        """
+        Lớp Board là một mảng hai chiều đại diện cho bàn di chuyển
+        :param row: số ô trong 1 hàng
+        :param column: số ô trong một cột
+        """
+        self._row = row
+        self._column = column
+        self._board = []
+        for y in range(row):
+            self._board.append([])
+            for x in range(column):
+                self._board[y].append((255, 255, 255))
+
+    def draw(self, screen, pos, size):
+        for x in range(self._column):
+            for y in range(self._row):
+                draw.rect(screen, self.get(x, y), (pos[0] + x * size, pos[1] + y * size, size, size))
+
+    def get(self, x, y):
+        try:
+            return self._board[y][x]
+        except:
+            raise IndexError
+
+    def set(self, x, y, value):
+        try:
+            self._board[y][x] = value
+        except:
+            raise IndexError
+
+    def getPos(self, id):
+        for y in range(self._row):
+            for x in range(self._column):
+                if self._board[y][x] == id:
+                    return [x, y]
+        return [-1, -1]
+
+    def printToConsole(self):
+        for row in self._board:
+            print(row)
+
+class History:
+    def __init__(self):
+        self._pointer = -1
+        self._history = []
+
+    def add(self, data):
+        self._history = self._history[:self._pointer+1]
+        self._history.append(data)
+        self._pointer += 1
+
+    def back(self):
+        if self._pointer > 0:
+            self._pointer -= 1
+
+    def undo(self):
+        """
+        Ctrl + 
+        :return:
+        """
+        if self._pointer < len(self._history):
+            self._pointer += 1
+
+
 class Player(sprite.Sprite):
     def __init__(self, parent, id, start_pos):
         """
@@ -64,7 +132,7 @@ class Player(sprite.Sprite):
                         "deltaY": 5, "nextPosition": [0, 0]}
         self.parent = parent
         self.id = id
-        #nguời chơi 2 đi sau
+        # nguời chơi 2 đi sau
         if id == 2:
             self.flag["myTurn"] = False
         self.image = Surface((setting.squareSize - 10, setting.squareSize - 10))
@@ -81,13 +149,13 @@ class Player(sprite.Sprite):
 
     def getKey(self):
         keystate = key.get_pressed()
-        if (keystate[K_a] and  self.id == 1) or (keystate[K_LEFT] and self.id == 2):
+        if (keystate[K_a] and self.id == 1) or (keystate[K_LEFT] and self.id == 2):
             self.move(direction='left')
-        elif (keystate[K_d] and  self.id == 1) or (keystate[K_RIGHT] and self.id == 2):
+        elif (keystate[K_d] and self.id == 1) or (keystate[K_RIGHT] and self.id == 2):
             self.move(direction='right')
-        elif (keystate[K_w] and  self.id == 1) or (keystate[K_UP] and self.id == 2):
+        elif (keystate[K_w] and self.id == 1) or (keystate[K_UP] and self.id == 2):
             self.move(direction='up')
-        elif (keystate[K_s] and  self.id == 1) or (keystate[K_DOWN] and self.id == 2):
+        elif (keystate[K_s] and self.id == 1) or (keystate[K_DOWN] and self.id == 2):
             self.move(direction='down')
 
     def animation(self):
@@ -138,3 +206,62 @@ class Player(sprite.Sprite):
             self.flag["myTurn"] = False
         else:
             self.flag["myTurn"] = True
+
+
+class DrawingBoard:
+    def __init__(self, parent, pos, sizeX, sizeY, squareSize):
+        self.parent = parent
+        self.size = {"Columns": sizeX, "Rows": sizeY}
+        self.pos = {"deltaX": pos[0], "deltaY": pos[1]}
+        self.squareSize = squareSize
+        self._color_board = ColorBoard(sizeY, sizeX)
+
+    def update(self):
+        self.animation()
+        self.getKey()
+
+    def getKey(self):
+        mouseaction = mouse.get_pressed()
+        if self.mouseInsideBoard():
+            pos = realPositionToBoardPosition(mouse.get_pos(), self.pos["deltaX"], self.pos["deltaY"], self.squareSize)
+            display.set_caption(str(pos))
+            if mouseaction[0]:
+                print(self.parent.getChosenColor())
+                self._color_board.set(pos[0], pos[1], self.parent.getChosenColor())
+            elif mouseaction[1]:
+                self._color_board.set(pos[0], pos[1], Color('white'))
+
+    def animation(self):
+        pass
+
+    def drawBoard(self):
+        """
+        draw the board
+        """
+        self._color_board.draw(self.parent.screen, [self.pos["deltaX"], self.pos["deltaY"]], self.squareSize)
+        for i in range(self.size["Rows"] + 1):
+            draw.line(self.parent.screen, Color('black'),
+                        (self.pos["deltaX"], self.pos["deltaY"] + i * self.squareSize),
+                        (self.pos["deltaX"] + self.size["Columns"] * self.squareSize,
+                         self.pos["deltaY"] + i * self.squareSize))
+        for i in range(self.size["Columns"] + 1):
+            draw.line(self.parent.screen, Color('black'),
+                        (self.pos["deltaX"] + i * self.squareSize, self.pos["deltaY"]),
+                        (self.pos["deltaX"] + i * self.squareSize,
+                         self.pos["deltaY"] + self.size["Rows"] * self.squareSize))
+        draw.line(self.parent.screen, Color('black'), (SCREEN_WIDTH - 190, 50),
+                  (SCREEN_WIDTH - 190, SCREEN_HEIGHT - 50))
+
+    def setSize(self, sizeX, sizeY):
+        self.size["Columns"] = sizeX
+        self.size["Columns"] = sizeY
+        self._color_board = ColorBoard(sizeX, sizeY)
+
+    def mouseInsideBoard(self):
+        return 0 <= mouse.get_pos()[0] - self.pos["deltaX"] <= self.size["Columns"] * self.squareSize and 0 <= \
+                                                                                                          mouse.get_pos()[
+                                                                                                              1] - \
+                                                                                                          self.pos[
+                                                                                                              "deltaY"] <= \
+                                                                                                          self.size[
+                                                                                                              "Rows"] * self.squareSize

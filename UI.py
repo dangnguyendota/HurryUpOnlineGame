@@ -426,7 +426,7 @@ class ColorBar(sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = pos[0] - 1
         self.rect.y = pos[1] - 1
-        self.pull_pos = [pos[0]-1, pos[1]]
+        self.pull_pos = [pos[0] - 1, pos[1]]
         self.field_pos = [pos[0] + 30, pos[1] + 70]
         self.choose_color_button = [self.field_pos[0] + 130, self.field_pos[1]]
 
@@ -456,14 +456,12 @@ class ColorBar(sprite.Sprite):
         # Vẽ hộp chọn màu chi tiết
         (r, g, b) = self.getPullResult()
         rx, gx, bx = (255 - r) / 130, (255 - g) / 130, (255 - b) / 130
-        print(rx, gx, bx)
         for x in range(130):
             for y in range(130):
-                draw.line(self.parent.screen,
-                          (int(r + rx * x - (r + rx * x) * y / 130), int(g + gx * x - (g + gx * x) * y / 130),
-                           int(b + bx * x - (b + bx * x) * y / 130)),
-                          [self.field_pos[0] + 130 - x, self.field_pos[1] + y],
-                          [self.field_pos[0] + 130 - x, self.field_pos[1] + y], 1)
+                self.parent.screen.set_at([self.field_pos[0] + 130 - x, self.field_pos[1] + y],
+                                          (int(r + rx * x - (r + rx * x) * y / 130),
+                                           int(g + gx * x - (g + gx * x) * y / 130),
+                                           int(b + bx * x - (b + bx * x) * y / 130)))
 
         # Linh tinh
         self.parent.screen.blit(pull_button, self.pull_pos)
@@ -525,7 +523,7 @@ class ColorBar(sprite.Sprite):
         rx, gx, bx = (255 - r) / 130, (255 - g) / 130, (255 - b) / 130
         x, y = self.field_pos[0] + 130 - self.choose_color_button[0], self.choose_color_button[1] - self.field_pos[1]
         return (int(r + rx * x - (r + rx * x) * y / 130), int(g + gx * x - (g + gx * x) * y / 130),
-                 int(b + bx * x - (b + bx * x) * y / 130))
+                int(b + bx * x - (b + bx * x) * y / 130))
 
     def showResultToScreen(self, pos):
         self.parent.screen.blit(normal_dialog, pos)
@@ -544,10 +542,89 @@ class ColorBar(sprite.Sprite):
 
     def showResult(self):
         cl = self.getColorFieldResult()
-        r = FontZorque_Normal.render("R:  "+str(cl[0]), True, Color("black"))
+        r = FontZorque_Normal.render("R:  " + str(cl[0]), True, Color("black"))
         g = FontZorque_Normal.render("G:  " + str(cl[1]), True, Color("black"))
         b = FontZorque_Normal.render("B:  " + str(cl[2]), True, Color("black"))
         self.parent.screen.blit(r, (self.pos[0] + 80, self.pos[1]))
-        self.parent.screen.blit(g, (self.pos[0] + 80, self.pos[1]+15))
-        self.parent.screen.blit(b, (self.pos[0] + 80, self.pos[1]+30))
+        self.parent.screen.blit(g, (self.pos[0] + 80, self.pos[1] + 15))
+        self.parent.screen.blit(b, (self.pos[0] + 80, self.pos[1] + 30))
 
+
+class TextField(sprite.Sprite):
+    def __init__(self, parent, pos, value="", maxsize=3, label=None, maxvalue=None):
+        sprite.Sprite.__init__(self)
+        self.parent = parent
+        self.pos = pos
+        self.maxsize = maxsize
+        self.maxvalue = maxvalue
+        self.value = value
+        self.label = label
+        self.image = Surface((maxsize * UNIT_PER_LETTER_NORMAL, 20))
+        self.image.fill(Color('white'))
+        self.rect = self.image.get_rect()
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+        self.flag = {"writting": False, "time_delay_writting": time.get_ticks(), "delta_time_delay": 500, "press_time_delay":time.get_ticks()}
+
+    def update(self):
+        self.animation()
+        self.getKey()
+
+    def animation(self):
+        if self.maxsize > len(self.value):
+            draw.rect(self.parent.screen, Color('black'),
+                      (self.rect.x, self.rect.y, self.maxsize * UNIT_PER_LETTER_NORMAL, 20), 1)
+        else:
+            draw.rect(self.parent.screen, Color('black'),
+                      (self.rect.x, self.rect.y, len(self.value) * UNIT_PER_LETTER_NORMAL, 20), 1)
+
+        if self.flag["writting"]:
+            delta = time.get_ticks() - self.flag["time_delay_writting"]
+            if delta <= 500:
+                text = FontZorque_Normal.render(self.value, True, Color('black'))
+            else:
+                text = FontZorque_Normal.render(self.value+"|", True, Color('black'))
+        else:
+            text = FontZorque_Normal.render(self.value, True, Color('black'))
+        self.parent.screen.blit(text, (self.rect.x, self.rect.y))
+
+
+    def getKey(self):
+        mouseaction = mouse.get_pressed()
+        keystates = key.get_pressed()
+        delta1 = time.get_ticks() - self.flag["press_time_delay"]
+        if mouseaction[0]:
+            if not self.mouseInsideTextField():
+                self.flag["writting"] = False
+            else:
+                self.flag["writting"] = True
+        if self.flag["writting"]:
+            delta = time.get_ticks() - self.flag["time_delay_writting"]
+            if delta >= self.flag["delta_time_delay"] * 2:
+                self.flag["time_delay_writting"] = time.get_ticks()
+            for i in range(48, 58):
+                if keystates[i]:
+                    if len(self.value) < self.maxsize and delta1 >= 200:
+                        self.value += chr(i)
+                        self.flag["press_time_delay"] = time.get_ticks()
+            for i in range(256, 266):
+                if keystates[i]:
+                    if len(self.value) < self.maxsize and delta1 >= 200:
+                        self.value += chr(i-208)
+                        self.flag["press_time_delay"] = time.get_ticks()
+            if keystates[K_BACKSPACE] and len(self.value) > 0:
+                self.value = self.value[:-1]
+        if not self.flag["writting"] and len(self.value) == 0:
+            self.value = "0"
+        if self.maxvalue and self.value != "" and int(self.value) > self.maxvalue:
+            self.value = str(self.maxvalue)
+
+    def mouseInsideTextField(self):
+        return 0 <= mouse.get_pos()[0] - self.rect.x <= self.maxsize * UNIT_PER_LETTER_NORMAL and 0 <= mouse.get_pos()[
+                                                                                                           1] - self.rect.y <= 20
+
+    def getValue(self):
+        return int(self.value)
+
+    def setValue(self, value):
+        self.value = value
